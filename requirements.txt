@@ -1,0 +1,14 @@
+# Deep Learning
+torch>=2.2
+torchvision>=0.17
+
+# Object Detection
+ultralytics>=8.4
+lap>=0.5.13
+
+# Computer Vision
+opencv-python>=4.10
+
+# Numerical Computing
+numpy>=2.0
+
