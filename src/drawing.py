@@ -2,9 +2,6 @@ import cv2
 import config
 import utils
 
-import cv2
-import config
-
 
 def draw_persons(frame, persons):
 
@@ -21,6 +18,13 @@ def draw_persons(frame, persons):
 
         if person["id"] is not None:
             label += f" #{person['id']}"
+
+        if "motion" in person:
+            speed = person["motion"]["speed"]
+            label += f' | {speed:.1f}px/s'
+
+        if "density" in person:
+            label += f' | D:{person["density"]}'
 
         # Bounding box
         cv2.rectangle(
@@ -51,34 +55,23 @@ def draw_persons(frame, persons):
             -1
         )
 
-import cv2
-import config
-import utils
-
-
-def draw_motion(frame, persons, tracks):
-
+def draw_motion(frame, persons):
     """
-    Draw speed and motion direction.
+    Draw motion information (speed, direction and angle).
     """
 
     for person in persons:
 
-        track_id = person["id"]
-
-        if track_id is None:
+        if "motion" not in person:
             continue
-
-        if track_id not in tracks:
-            continue
-
-        points = tracks[track_id]
-
-        speed = utils.compute_speed(points)
-
-        direction = utils.compute_direction(points)
 
         cx, cy = person["center"]
+
+        motion = person["motion"]
+
+        speed = motion["speed"]
+        direction = motion["direction"]
+        angle = motion["angle"]
 
         dx, dy = direction
 
@@ -87,7 +80,7 @@ def draw_motion(frame, persons, tracks):
             int(cy + dy * config.ARROW_LENGTH)
         )
 
-        # Arrow
+        # Draw motion arrow
         cv2.arrowedLine(
             frame,
             (cx, cy),
@@ -96,19 +89,29 @@ def draw_motion(frame, persons, tracks):
             config.ARROW_THICKNESS,
             tipLength=0.3
         )
-        label = f"ID:{track_id}  V:{speed:.1f}"
 
         # Speed
         cv2.putText(
             frame,
-            label,
+            f"V:{speed:.1f}",
             (cx + 10, cy + 20),
             config.FONT,
             0.5,
             config.ARROW_COLOR,
             2
         )
-        
+
+        # Direction angle
+        cv2.putText(
+            frame,
+            f"{angle:.0f}°",
+            (cx + 10, cy + 40),
+            config.FONT,
+            0.5,
+            (255, 255, 0),
+            2
+        )
+
 def draw_tracks(frame, tracks):
 
     for points in tracks.values():
@@ -125,3 +128,56 @@ def draw_tracks(frame, tracks):
                 config.TRACK_COLOR,
                 2
             )
+
+def draw_interactions(frame, persons, contacts):
+
+    centers = {}
+
+    for person in persons:
+
+        centers[person["id"]] = person["center"]
+
+    for contact in contacts:
+
+        id1 = contact["person1"]
+        id2 = contact["person2"]
+
+        if id1 not in centers:
+            continue
+
+        if id2 not in centers:
+            continue
+
+        p1 = centers[id1]
+        p2 = centers[id2]
+
+        distance = contact["distance"]
+
+        color = (0,255,0)
+
+        if distance < 60:
+            color = (0,0,255)
+
+        elif distance < 120:
+            color = (0,165,255)
+
+        cv2.line(
+            frame,
+            p1,
+            p2,
+            color,
+            2
+        )
+
+        mx = (p1[0] + p2[0]) // 2
+        my = (p1[1] + p2[1]) // 2
+
+        cv2.putText(
+            frame,
+            f"{distance:.0f}",
+            (mx, my),
+            config.FONT,
+            0.5,
+            color,
+            2
+        )
