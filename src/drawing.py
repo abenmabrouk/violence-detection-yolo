@@ -26,12 +26,24 @@ def draw_persons(frame, persons):
         if "density" in person:
             label += f' | D:{person["density"]}'
 
+        risk = person["behavior"]["risk_level"]
+        if risk == "HIGH":
+            color = (255, 0, 0)
+
+        elif risk == "MEDIUM":
+            color = (255, 100, 0)
+
+        else:
+            color = (0, 255, 0)
+            
+        label += f' | {risk}'
+
         # Bounding box
         cv2.rectangle(
             frame,
             (x1, y1),
             (x2, y2),
-            config.BOX_COLOR,
+            color,
             config.BOX_THICKNESS
         )
 
@@ -42,7 +54,7 @@ def draw_persons(frame, persons):
             (x1, y1 - 10),
             config.FONT,
             config.FONT_SCALE,
-            config.BOX_COLOR,
+            color,
             config.BOX_THICKNESS
         )
 

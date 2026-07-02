@@ -30,3 +30,13 @@ ARROW_THICKNESS = 2
 
 # Interaction
 INTERACTION_DISTANCE = 80
+
+# ---------------------------------
+# Behavior thresholds
+# ---------------------------------
+
+RUNNING_SPEED_THRESHOLD = 250
+
+ACCELERATION_THRESHOLD = 120
+
+DENSITY_THRESHOLD = 4

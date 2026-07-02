@@ -7,6 +7,7 @@ import interaction
 import video_io
 import tracker
 import motion
+import behavior
 
 def main():
     model = YOLO(config.MODEL_PATH)
@@ -59,6 +60,7 @@ def main():
                 tracks[track_id],
                 fps
             )
+            person["behavior"] = behavior.compute_behavior(person)
 
         # Interactions
         interactions = interaction.compute_pairwise_distances(persons)
